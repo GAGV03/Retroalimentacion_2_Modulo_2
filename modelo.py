@@ -17,7 +17,7 @@ objective = df['Admision']
 X_train, X_val, y_train, y_val = train_test_split(features, objective, test_size=0.3, random_state=42)
 
 # Escalar los datos usando StandardScaler
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 x_train_scaled = scaler.fit_transform(X_train)
 x_valid_scaled = scaler.transform(X_val)
 
