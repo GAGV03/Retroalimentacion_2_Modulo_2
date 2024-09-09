@@ -53,7 +53,7 @@ y_val_pred = best_model.predict(x_valid_scaled)
 
 #Se obtiene el error cuadrático medio y la raíz del error cuadrático medio para entender su desempeño
 mse = mean_squared_error(y_val, y_val_pred)
-print("*"*20)
+print("*"*50)
 print("MSE del modelo entrenado:", mse)
 rmse = np.sqrt(mse)
 print("\nRaíz del MSE:", rmse)
@@ -67,15 +67,17 @@ porcentaje_error = (1-accuracy_val) * 100
 
 #Se muestra el porcentaje de error en la etapa de validación
 print(f"\nPorcentaje de error para set de validación: {porcentaje_error:.2f}%")
-print("*"*20)
+print("*"*50)
 
 #Se obtiene la matriz de confusión del modelo
 print("\nMatriz de confusión:")
 print(confusion_matrix(y_val, y_val_pred))
+print("*"*50)
 
 #Se obtiene el reporte de clasificación del modelo (Métricas como F1Score, Precision, Recall)
 print("\nReporte de clasificación:")
 print(classification_report(y_val, y_val_pred))
+print("*"*50)
 
 #Se lee el dataset de la etapa de test
 dataset_test = pd.read_csv('test.csv')
@@ -93,6 +95,7 @@ predicciones = best_model.predict(x_test_scaled)
 for x,y in zip (entradas,predicciones):
     estado = "Admitido" if y == 1 else "No admitido"
     print(f"Entrada (PuntajeExamen,PromedioAcumulado): {x} -> Predicción: {estado}")
+print("*"*50)
 
 
 
