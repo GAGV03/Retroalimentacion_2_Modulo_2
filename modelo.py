@@ -56,7 +56,7 @@ print(classification_report(y_val, y_val_pred))
 dataset_test = pd.read_csv('test.csv')
 x_test_scaled = scaler.transform(dataset_test)
 
-# Evaluar el modelo en el conjunto de prueba
+# Hacer predicciones con el modelo entrenado
 predicciones = best_model.predict(dataset_test)
 print(predicciones)
 
