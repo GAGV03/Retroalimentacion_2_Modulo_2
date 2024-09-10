@@ -1,24 +1,23 @@
-#Autor: Gustavo Alejandro Gutiérrez Valdes 
+#Autor: Gustavo Alejandro Gutiérrez Valdes - A01747869
 
 import numpy as np
 import pandas as pd
 
-#se importan los recursos necesarios del framework de sklearn
+#Se importan los recursos necesarios del framework de sklearn
 from sklearn.preprocessing import MinMaxScaler, StandardScaler #type: ignore
 from sklearn.model_selection import train_test_split #type: ignore
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report #type: ignore
 from sklearn.metrics import mean_squared_error #type: ignore
-from sklearn.metrics import mean_absolute_percentage_error #type: ignore
 from sklearn.ensemble import RandomForestClassifier #type: ignore
 from sklearn.model_selection import GridSearchCV
 
 #Se lee el dataset de estudiantes que compondrá la etapa de training y validation
 df = pd.read_csv('dataset_students.csv')
 
-#Son las columnas que se utilizarán para entrenar el modelo
+#Son las columnas que se utilizarán para entrenar el modelo (quitando la columna objetivo)
 features = df.drop(columns='Admision')
 
-#Es la columna objetivo
+#Se guarda la columna objetivo para hacer comparaciones posteriormente
 objective = df['Admision']
 
 # Dividir en entrenamiento y validación (70% train, 30% validation)
@@ -29,14 +28,20 @@ scaler = MinMaxScaler()
 x_train_scaled = scaler.fit_transform(X_train)
 x_valid_scaled = scaler.transform(X_val)
 
-# Definir los parámetros a ajustar en el entrenamiento
+# Se definen los diferentes conjuntos de hiperparámetros que se probarán entre si para encontrar la mejor combinación en el 
+# siguiente paso. Se eligieron la cantidad de arboles a generar, la profundiad máxima de cada uno y la cantidad  de muestras 
+# con la que los nodos se dividirán, ya que estos hiperparámetros controlan directamente la capacidad predictiva al 
+# reducir la varianza y hacer las predicciones mas robustas. De igual forma, se mantiene dominio acerca del subajuste o 
+# sobreajuste del modelo y finalmente se mitiga el impacto del ruido, dandole al modelo una mayor capacidad de generalización.
 param_grid = {
     'n_estimators': [10, 50,100, 150],
     'max_depth': [None, 5, 10,20],
     'min_samples_split': [2, 5, 10]
 }
 
-# Crear un objeto GridSearchCV. Esto servirá para encontrar los mejores hiperparámetros para el entrenamiento
+# Crear un objeto GridSearchCV. Este objeto se encargará de probar todas las combinaciones posibles de hiperparámetros y elegir 
+# la que mejor funcione con el modelo elegido, se probará con validación cruzada de 5 folds y se utilizarán todos los núcleos 
+# disponibles para el trabajo
 grid_search = GridSearchCV(estimator=RandomForestClassifier(), 
                           param_grid=param_grid, 
                           cv=5, 
@@ -45,13 +50,13 @@ grid_search = GridSearchCV(estimator=RandomForestClassifier(),
 #Se aplican el objeto de GridSearchCV a los datos de entrenamiento
 grid_search.fit(x_train_scaled, y_train)
 
-# Se obtiene el mejor modelo entrenado
+# Se obtiene el mejor modelo dentro de las combinaciones disponibles
 best_model = grid_search.best_estimator_
 
 # Evaluar el modelo en el conjunto de validación
 y_val_pred = best_model.predict(x_valid_scaled)
 
-#Se obtiene el error cuadrático medio y la raíz del error cuadrático medio para entender su desempeño
+#Se obtiene el error cuadrático medio y la raíz del error cuadrático medio para entender su desempeño con el conjunto de validación
 mse = mean_squared_error(y_val, y_val_pred)
 print("*"*50)
 print("MSE del modelo entrenado:", mse)
