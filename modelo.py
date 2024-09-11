@@ -10,6 +10,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 from sklearn.metrics import mean_squared_error #type: ignore
 from sklearn.ensemble import RandomForestClassifier #type: ignore
 from sklearn.model_selection import GridSearchCV
+import matplotlib.pyplot as plt
+from sklearn.model_selection import learning_curve, validation_curve
 
 #Se lee el dataset de estudiantes que compondrá la etapa de training y validation
 df = pd.read_csv('dataset_students.csv')
@@ -52,6 +54,10 @@ grid_search.fit(x_train_scaled, y_train)
 
 # Se obtiene el mejor modelo dentro de las combinaciones disponibles
 best_model = grid_search.best_estimator_
+
+y_train_pred = best_model.predict(x_train_scaled)
+
+accuracy_train = accuracy_score(y_train, y_train_pred)
 
 # Evaluar el modelo en el conjunto de validación
 y_val_pred = best_model.predict(x_valid_scaled)
@@ -102,8 +108,37 @@ for x,y in zip (entradas,predicciones):
     print(f"Entrada (PuntajeExamen,PromedioAcumulado): {x} -> Predicción: {estado}")
 print("*"*50)
 
+# Graficar las precisiones de entrenamiento y validación
+plt.figure(figsize=(6, 4))
+plt.bar(['Entrenamiento', 'Validación'], [accuracy_train, accuracy_val], color=['blue', 'green'])
+plt.title('Precisión en Entrenamiento y Validación')
+plt.ylabel('Precisión')
+plt.ylim(0, 1)
+plt.show()
 
+# Obtener la curva de aprendizaje
+train_sizes, train_scores, val_scores = learning_curve(
+    estimator=best_model,
+    X=x_train_scaled,
+    y=y_train,
+    cv=5,
+    train_sizes=np.linspace(0.1, 1.0, 10),
+    n_jobs=-1
+)
 
+# Promediar las puntuaciones de precisión
+train_mean = np.mean(train_scores, axis=1)
+val_mean = np.mean(val_scores, axis=1)
 
+# Graficar la curva de aprendizaje
+plt.figure(figsize=(8, 6))
+plt.plot(train_sizes, train_mean, label='Precisión en Entrenamiento', color='blue', marker='o')
+plt.plot(train_sizes, val_mean, label='Precisión en Validación', color='green', marker='o')
+plt.title('Curva de Aprendizaje')
+plt.xlabel('Tamaño del conjunto de entrenamiento')
+plt.ylabel('Precisión')
+plt.legend(loc='best')
+plt.grid(True)
+plt.show()
 
 
