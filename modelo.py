@@ -63,10 +63,12 @@ accuracy_train = accuracy_score(y_train, y_train_pred)
 y_val_pred = best_model.predict(x_valid_scaled)
 
 #Se obtiene el error cuadrático medio y la raíz del error cuadrático medio para entender su desempeño con el conjunto de validación
-mse = mean_squared_error(y_val, y_val_pred)
+mse_train = mean_squared_error(y_train,y_train_pred)
+mse_val = mean_squared_error(y_val, y_val_pred)
+
 print("*"*50)
-print("MSE del modelo entrenado:", mse)
-rmse = np.sqrt(mse)
+print("MSE del modelo entrenado:", mse_val)
+rmse = np.sqrt(mse_val)
 print("\nRaíz del MSE:", rmse)
 
 #Se obtiene el valor de la precisión del modelo en la etapa de validación
@@ -108,7 +110,9 @@ for x,y in zip (entradas,predicciones):
     print(f"Entrada (PuntajeExamen,PromedioAcumulado): {x} -> Predicción: {estado}")
 print("*"*50)
 
-# Graficar las precisiones de entrenamiento y validación
+# Graficar las precisiones de entrenamiento y validación. ESTO SIRVE PARA LA COMPARACIÓN DEL OVERFITTING
+# Si la precisión en el conjunto de entrenamiento es muy alta, pero en el de validación es baja, puede haber sobreajuste (overfitting).
+# Si la precisión es baja en ambos conjuntos, puede haber subajuste (underfitting), lo que indica que el modelo no está capturando correctamente las relaciones en los datos.
 plt.figure(figsize=(6, 4))
 plt.bar(['Entrenamiento', 'Validación'], [accuracy_train, accuracy_val], color=['blue', 'green'])
 plt.title('Precisión en Entrenamiento y Validación')
@@ -117,6 +121,9 @@ plt.ylim(0, 1)
 plt.show()
 
 # Obtener la curva de aprendizaje
+# Curva de aprendizaje: Muestra cómo varía la precisión del modelo cuando se incrementa el tamaño del conjunto de entrenamiento. Esto es útil para diagnosticar problemas de sobreajuste o subajuste.
+# Si la precisión de validación mejora significativamente a medida que aumentas los datos de entrenamiento, el modelo podría estar mejorando con más datos y podrías considerar obtener más ejemplos.
+# Si las curvas se estabilizan rápidamente, podría significar que ya tienes suficientes datos y el modelo ha alcanzado su máximo rendimiento.
 train_sizes, train_scores, val_scores = learning_curve(
     estimator=best_model,
     X=x_train_scaled,
@@ -139,6 +146,18 @@ plt.xlabel('Tamaño del conjunto de entrenamiento')
 plt.ylabel('Precisión')
 plt.legend(loc='best')
 plt.grid(True)
+plt.show()
+
+# Gráfica de los errores (bias)
+# Evaluar el bias (sesgo): Un MSE alto en el conjunto de entrenamiento indicaría un alto bias, lo que significa que el modelo no está capturando bien las relaciones en los datos (subajuste).
+# Si el MSE es mucho mayor en el conjunto de validación que en el de entrenamiento, podría haber sobreajuste, donde el modelo se ajusta muy bien a los datos de entrenamiento pero falla al generalizar en datos nuevos.
+labels = ['Entrenamiento', 'Validación']
+mse_values = [mse_train, mse_val]
+
+plt.figure(figsize=(8, 6))
+plt.bar(labels, mse_values, color=['blue', 'orange'])
+plt.ylabel('Error Cuadrático Medio (MSE)')
+plt.title('Bias del Modelo en Entrenamiento y Validación')
 plt.show()
 
 
