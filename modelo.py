@@ -1,9 +1,8 @@
 #Autor: Gustavo Alejandro Gutiérrez Valdes - A01747869
 
+#Se importan los recursos necesarios del framework de sklearn
 import numpy as np
 import pandas as pd
-
-#Se importan los recursos necesarios del framework de sklearn
 from sklearn.preprocessing import MinMaxScaler, StandardScaler #type: ignore
 from sklearn.model_selection import train_test_split #type: ignore
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report #type: ignore
@@ -21,6 +20,11 @@ features = df.drop(columns='Admision')
 
 #Se guarda la columna objetivo para hacer comparaciones posteriormente
 objective = df['Admision']
+# cantidad_respuestas = df['Admision'].value_counts().plot(kind='bar', color=['red', 'green'])
+# plt.title('Distribución de la variable objetivo')
+# plt.xlabel('Admitido (1) / No admitido (0)')
+# plt.ylabel('Cantidad de respuestas')
+# plt.show()
 
 # Dividir en entrenamiento y validación (70% train, 30% validation)
 X_train, X_val, y_train, y_val = train_test_split(features, objective, test_size=0.3, random_state=35)
@@ -110,16 +114,6 @@ for x,y in zip (entradas,predicciones):
     print(f"Entrada (PuntajeExamen,PromedioAcumulado): {x} -> Predicción: {estado}")
 print("*"*50)
 
-# Graficar las precisiones de entrenamiento y validación. ESTO SIRVE PARA LA COMPARACIÓN DEL OVERFITTING
-# Si la precisión en el conjunto de entrenamiento es muy alta, pero en el de validación es baja, puede haber sobreajuste (overfitting).
-# Si la precisión es baja en ambos conjuntos, puede haber subajuste (underfitting), lo que indica que el modelo no está capturando correctamente las relaciones en los datos.
-plt.figure(figsize=(6, 4))
-plt.bar(['Entrenamiento', 'Validación'], [accuracy_train, accuracy_val], color=['blue', 'green'])
-plt.title('Precisión en Entrenamiento y Validación')
-plt.ylabel('Precisión')
-plt.ylim(0, 1)
-plt.show()
-
 # Obtener la curva de aprendizaje
 # Curva de aprendizaje: Muestra cómo varía la precisión del modelo cuando se incrementa el tamaño del conjunto de entrenamiento. Esto es útil para diagnosticar problemas de sobreajuste o subajuste.
 # Si la precisión de validación mejora significativamente a medida que aumentas los datos de entrenamiento, el modelo podría estar mejorando con más datos y podrías considerar obtener más ejemplos.
@@ -135,7 +129,9 @@ train_sizes, train_scores, val_scores = learning_curve(
 
 # Promediar las puntuaciones de precisión
 train_mean = np.mean(train_scores, axis=1)
+train_std = np.std(train_scores, axis=1)
 val_mean = np.mean(val_scores, axis=1)
+val_std = np.std(val_scores, axis=1)
 
 # Graficar la curva de aprendizaje
 plt.figure(figsize=(8, 6))
@@ -148,9 +144,6 @@ plt.legend(loc='best')
 plt.grid(True)
 plt.show()
 
-# Gráfica de los errores (bias)
-# Evaluar el bias (sesgo): Un MSE alto en el conjunto de entrenamiento indicaría un alto bias, lo que significa que el modelo no está capturando bien las relaciones en los datos (subajuste).
-# Si el MSE es mucho mayor en el conjunto de validación que en el de entrenamiento, podría haber sobreajuste, donde el modelo se ajusta muy bien a los datos de entrenamiento pero falla al generalizar en datos nuevos.
 labels = ['Entrenamiento', 'Validación']
 mse_values = [mse_train, mse_val]
 
@@ -159,5 +152,7 @@ plt.bar(labels, mse_values, color=['blue', 'orange'])
 plt.ylabel('Error Cuadrático Medio (MSE)')
 plt.title('Bias del Modelo en Entrenamiento y Validación')
 plt.show()
+
+
 
 
